@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三角関数グラフシミュレータ</title>
+<meta property="og:title" content="三角関数グラフシミュレータ">
+<meta property="og:description" content="sin・cos・tan を関数ごとに独立したパラメータで操作。合成波・アニメーション対応の高校数学ツール。">
+<meta property="og:type" content="website">
+<meta property="og:image" content="ogp.jpg">
+<meta property="og:url" content="https://trigonometry.meetupsensei.com">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ===== CSS Variables ===== */
+:root {
+  --bg:#f0f3f7; --surface:#ffffff; --surface2:#f5f7fa; --border:#dde2ea;
+  --text:#1a2332; --text-muted:#6b7a8d; --text-sub:#8fa0b3;
+  --shadow:0 1px 4px rgba(0,0,0,0.07);
+  /* CUD配色 */
+  --sin:#0068B7; --sin-soft:#dceeff;
+  --cos:#F39800; --cos-soft:#fff2d9;
+  --tan:#03AF7A; --tan-soft:#d0f5eb;
+  --sum:#9B2AA7; --sum-soft:#f0e0f5;
+  --grid:rgba(0,0,0,0.06); --axis:rgba(0,0,0,0.22);
+}
+[data-theme="dark"] {
+  --bg:#0d1420; --surface:#162032; --surface2:#1c2a3e; --border:#243249;
+  --text:#e2eaf5; --text-muted:#7a90a8; --text-sub:#4e637a;
+  --sin:#4d9ee8; --sin-soft:#0d2840;
+  --cos:#f5b942; --cos-soft:#2e2000;
+  --tan:#2dd4a0; --tan-soft:#002e22;
+  --sum:#cc78d8; --sum-soft:#2a0a30;
+  --grid:rgba(255,255,255,0.05); --axis:rgba(255,255,255,0.2);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;font-size:14px}
+
+/* ===== Header ===== */
+header{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:10px 16px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:200;
+}
+.hd-left{display:flex;align-items:baseline;gap:10px}
+.hd-title{font-size:1rem;font-weight:700}
+.hd-sub{font-size:.7rem;color:var(--text-muted)}
+.hd-right{display:flex;gap:8px;align-items:center}
+
+/* ===== Pill toggle ===== */
+.pill{display:flex;background:var(--surface2);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.pill button{
+  padding:5px 12px;font-size:.72rem;font-family:'Noto Sans JP',sans-serif;font-weight:500;
+  background:transparent;border:none;border-right:1px solid var(--border);
+  color:var(--text-muted);cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.pill button:last-child{border-right:none}
+.pill button.active{background:var(--sin);color:#fff}
+
+.icon-btn{
+  width:32px;height:32px;border-radius:6px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--text-muted);cursor:pointer;font-size:.95rem;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.icon-btn:hover{color:var(--sin);border-color:var(--sin)}
+
+/* ===== Layout ===== */
+.layout{
+  display:grid;
+  grid-template-columns:1fr 320px;
+  gap:14px;padding:14px;max-width:1200px;margin:0 auto;
+}
+@media(max-width:860px){.layout{grid-template-columns:1fr}}
+
+/* ===== Card ===== */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}
+.card-title{font-size:.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+
+/* ===== Graph ===== */
+canvas#graph{width:100%;display:block;border-radius:6px}
+
+/* ===== Formula bar ===== */
+.formula-bar{
+  display:flex;flex-wrap:wrap;gap:6px;
+  padding:8px 10px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:6px;margin-bottom:10px;
+}
+.ftag{
+  font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;
+  padding:2px 8px;border-radius:4px;transition:opacity .2s;
+}
+.ftag.sin{color:var(--sin);background:var(--sin-soft)}
+.ftag.cos{color:var(--cos);background:var(--cos-soft)}
+.ftag.tan{color:var(--tan);background:var(--tan-soft)}
+.ftag.sum{color:var(--sum);background:var(--sum-soft)}
+.ftag.off{opacity:.35}
+
+/* ===== Controls header with color dot ===== */
+.func-header{
+  display:flex;align-items:center;gap:8px;margin-bottom:10px;
+}
+.cdot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.cdot.sin{background:var(--sin)}
+.cdot.cos{background:var(--cos)}
+.cdot.tan{background:var(--tan)}
+.cdot.sum{background:var(--sum)}
+.func-label{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:600}
+.func-label.sin{color:var(--sin)}
+.func-label.cos{color:var(--cos)}
+.func-label.tan{color:var(--tan)}
+.func-label.sum{color:var(--sum)}
+.vis-toggle{
+  margin-left:auto;width:44px;height:22px;border-radius:11px;
+  border:1px solid var(--border);background:var(--surface2);
+  cursor:pointer;position:relative;transition:all .25s;
+}
+.vis-toggle::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:14px;height:14px;border-radius:50%;background:var(--border);
+  transition:all .25s;
+}
+.vis-toggle.on{border-color:currentColor}
+.vis-toggle.on.sin{background:var(--sin-soft)}
+.vis-toggle.on.cos{background:var(--cos-soft)}
+.vis-toggle.on.tan{background:var(--tan-soft)}
+.vis-toggle.on.sum{background:var(--sum-soft)}
+.vis-toggle.on::after{left:23px;background:currentColor}
+.vis-toggle.on.sin::after{background:var(--sin)}
+.vis-toggle.on.cos::after{background:var(--cos)}
+.vis-toggle.on.tan::after{background:var(--tan)}
+.vis-toggle.on.sum::after{background:var(--sum)}
+
+/* ===== Param rows ===== */
+.param-row{margin-bottom:10px}
+.param-label{display:flex;justify-content:space-between;font-size:.72rem;margin-bottom:4px}
+.param-label span:first-child{color:var(--text-muted)}
+.pval{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.8rem}
+input[type=range]{
+  -webkit-appearance:none;width:100%;height:3px;
+  border-radius:2px;background:var(--border);outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+  border:2px solid var(--surface);box-shadow:0 1px 3px rgba(0,0,0,0.2);
+}
+input[type=range]::-moz-range-thumb{
+  width:15px;height:15px;border-radius:50%;
+  border:2px solid var(--surface);box-shadow:0 1px 3px rgba(0,0,0,0.2);
+}
+.sin-range::-webkit-slider-thumb{background:var(--sin)}
+.sin-range::-moz-range-thumb{background:var(--sin)}
+.cos-range::-webkit-slider-thumb{background:var(--cos)}
+.cos-range::-moz-range-thumb{background:var(--cos)}
+.tan-range::-webkit-slider-thumb{background:var(--tan)}
+.tan-range::-moz-range-thumb{background:var(--tan)}
+
+/* ===== Phase chips ===== */
+.phase-chips{display:flex;flex-wrap:wrap;gap:3px}
+.pchip{
+  padding:2px 6px;font-family:'JetBrains Mono',monospace;font-size:.68rem;
+  border-radius:4px;border:1px solid var(--border);background:var(--surface2);
+  color:var(--text-muted);cursor:pointer;transition:all .15s;
+}
+.pchip:hover{border-color:currentColor}
+.pchip.active{color:#fff}
+.pchip.active.sin{background:var(--sin);border-color:var(--sin)}
+.pchip.active.cos{background:var(--cos);border-color:var(--cos)}
+.pchip.active.tan{background:var(--tan);border-color:var(--tan)}
+
+/* ===== Section separator ===== */
+.sep{border:none;border-top:1px solid var(--border);margin:12px 0}
+
+/* ===== Feature toggles row ===== */
+.feat-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.feat-btn{
+  padding:4px 10px;font-size:.72rem;font-family:'Noto Sans JP',sans-serif;font-weight:500;
+  border-radius:5px;border:1px solid var(--border);background:var(--surface2);
+  color:var(--text-muted);cursor:pointer;transition:all .2s;
+}
+.feat-btn.on{background:var(--sin);border-color:var(--sin);color:#fff}
+.feat-btn.sum-on{background:var(--sum);border-color:var(--sum);color:#fff}
+
+/* ===== Anim controls ===== */
+.anim-bar{display:flex;align-items:center;gap:8px;margin-top:8px}
+.play-btn{
+  padding:5px 14px;font-size:.75rem;font-family:'Noto Sans JP',sans-serif;font-weight:700;
+  border-radius:5px;border:1px solid var(--border);background:var(--surface2);
+  color:var(--text);cursor:pointer;transition:all .2s;
+}
+.play-btn.playing{background:var(--sin);border-color:var(--sin);color:#fff}
+.speed-label{font-size:.7rem;color:var(--text-muted);white-space:nowrap}
+
+/* ===== Info box ===== */
+.info-box{
+  background:var(--surface2);border-radius:6px;padding:9px 11px;
+  font-size:.73rem;line-height:1.75;color:var(--text-muted);
+}
+.info-box strong{color:var(--text)}
+
+/* ===== Reset ===== */
+.reset-btn{
+  width:100%;margin-top:10px;padding:7px;border-radius:6px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--text-muted);font-family:'Noto Sans JP',sans-serif;
+  font-size:.72rem;cursor:pointer;transition:all .2s;
+}
+.reset-btn:hover{border-color:var(--sin);color:var(--sin)}
+
+/* ===== Func blocks collapsible ===== */
+.func-block{margin-bottom:10px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)}
+.func-block:last-child{margin-bottom:0}
+
+@media(max-width:600px){
+  header{padding:8px 10px}
+  .layout{padding:8px;gap:8px}
+  .card{padding:10px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd-left">
+    <span class="hd-title">三角関数グラフシミュレータ</span>
+    <span class="hd-sub">meetupsensei.com</span>
+  </div>
+  <div class="hd-right">
+    <div class="pill" id="angle-mode">
+      <button class="active" data-mode="rad">rad</button>
+      <button data-mode="deg">deg</button>
+    </div>
+    <button class="icon-btn" id="theme-btn" title="ライト/ダーク切替">🌙</button>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- Left: Graph -->
+  <div style="display:flex;flex-direction:column;gap:12px">
+
+    <div class="card">
+      <div class="formula-bar" id="formula-bar">
+        <span class="ftag sin" id="ftag-sin">y=sin(x)</span>
+        <span class="ftag cos" id="ftag-cos">y=cos(x)</span>
+        <span class="ftag tan" id="ftag-tan">y=tan(x)</span>
+        <span class="ftag sum off" id="ftag-sum" style="display:none">合成波</span>
+      </div>
+      <canvas id="graph"></canvas>
+    </div>
+
+    <!-- Feature bar -->
+    <div class="card">
+      <div class="card-title">表示オプション</div>
+      <div class="feat-row">
+        <button class="feat-btn" id="btn-highlight" title="最大値・ゼロ点・不連続点をマーカー表示">📍 特徴点ハイライト</button>
+        <button class="feat-btn sum-off" id="btn-sum" title="sinとcosの合成波 sin+cos を表示">➕ 合成波 (sin+cos)</button>
+      </div>
+      <hr class="sep">
+      <div class="card-title" style="margin-bottom:6px">アニメーション（位相を自動変化）</div>
+      <div class="anim-bar">
+        <button class="play-btn" id="play-btn">▶ 再生</button>
+        <span class="speed-label">速度</span>
+        <input type="range" id="anim-speed" min="0.5" max="4" step="0.5" value="1.5"
+               style="width:80px;margin:0" class="sin-range">
+        <span class="pval" id="speed-val" style="font-size:.72rem;color:var(--text-muted)">×1.5</span>
+        <span class="speed-label" style="margin-left:4px">対象</span>
+        <div class="pill" id="anim-target" style="margin-left:4px">
+          <button class="active" data-t="all">全て</button>
+          <button data-t="sin">sin</button>
+          <button data-t="cos">cos</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formula reference -->
+    <div class="card">
+      <div class="card-title">公式メモ</div>
+      <div class="info-box">
+        <strong>y = A · f(ωx + φ)</strong> &nbsp; A:振幅 ω:角周波数 φ:位相<br>
+        周期 T = 2π/ω（radモード） &nbsp;|&nbsp; 値域 sin,cos : [−A, A]<br>
+        <strong>sin²x + cos²x = 1</strong> &nbsp;|&nbsp; <strong>tan x = sin x / cos x</strong><br>
+        tan は x = π/2 + nπ（rad）で不連続
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Controls -->
+  <div style="display:flex;flex-direction:column;gap:12px">
+
+    <!-- sin -->
+    <div class="card" id="ctrl-sin">
+      <div class="func-header">
+        <span class="cdot sin"></span>
+        <span class="func-label sin">sin</span>
+        <button class="vis-toggle on sin" id="tog-sin" data-f="sin" title="表示切替"></button>
+      </div>
+      <div class="func-block">
+        <div class="param-row">
+          <div class="param-label"><span>振幅 A</span><span class="pval sin" id="sin-a-val" style="color:var(--sin)">1.0</span></div>
+          <input type="range" class="sin-range" id="sin-a" min="0.1" max="3" step="0.1" value="1">
+        </div>
+        <div class="param-row">
+          <div class="param-label"><span>角周波数 ω</span><span class="pval" id="sin-w-val" style="color:var(--sin)">1.0</span></div>
+          <input type="range" class="sin-range" id="sin-w" min="0.1" max="4" step="0.1" value="1">
+        </div>
+        <div class="param-row" style="margin-bottom:0">
+          <div class="param-label"><span>位相 φ</span><span class="pval" id="sin-p-val" style="color:var(--sin)">0</span></div>
+          <div class="phase-chips" id="sin-chips"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- cos -->
+    <div class="card" id="ctrl-cos">
+      <div class="func-header">
+        <span class="cdot cos"></span>
+        <span class="func-label cos">cos</span>
+        <button class="vis-toggle on cos" id="tog-cos" data-f="cos" title="表示切替"></button>
+      </div>
+      <div class="func-block">
+        <div class="param-row">
+          <div class="param-label"><span>振幅 A</span><span class="pval" id="cos-a-val" style="color:var(--cos)">1.0</span></div>
+          <input type="range" class="cos-range" id="cos-a" min="0.1" max="3" step="0.1" value="1">
+        </div>
+        <div class="param-row">
+          <div class="param-label"><span>角周波数 ω</span><span class="pval" id="cos-w-val" style="color:var(--cos)">1.0</span></div>
+          <input type="range" class="cos-range" id="cos-w" min="0.1" max="4" step="0.1" value="1">
+        </div>
+        <div class="param-row" style="margin-bottom:0">
+          <div class="param-label"><span>位相 φ</span><span class="pval" id="cos-p-val" style="color:var(--cos)">0</span></div>
+          <div class="phase-chips" id="cos-chips"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- tan -->
+    <div class="card" id="ctrl-tan">
+      <div class="func-header">
+        <span class="cdot tan"></span>
+        <span class="func-label tan">tan</span>
+        <button class="vis-toggle on tan" id="tog-tan" data-f="tan" title="表示切替"></button>
+      </div>
+      <div class="func-block">
+        <div class="param-row">
+          <div class="param-label"><span>振幅 A</span><span class="pval" id="tan-a-val" style="color:var(--tan)">1.0</span></div>
+          <input type="range" class="tan-range" id="tan-a" min="0.1" max="3" step="0.1" value="1">
+        </div>
+        <div class="param-row">
+          <div class="param-label"><span>角周波数 ω</span><span class="pval" id="tan-w-val" style="color:var(--tan)">1.0</span></div>
+          <input type="range" class="tan-range" id="tan-w" min="0.1" max="4" step="0.1" value="1">
+        </div>
+        <div class="param-row" style="margin-bottom:0">
+          <div class="param-label"><span>位相 φ</span><span class="pval" id="tan-p-val" style="color:var(--tan)">0</span></div>
+          <div class="phase-chips" id="tan-chips"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="reset-btn" id="reset-btn">↺ 全パラメータをリセット</button>
+  </div>
+</div>
+
+<script>
+// ===== State =====
+const S = {
+  mode: 'rad',
+  theme: 'light',
+  show: { sin:true, cos:true, tan:true },
+  p: {
+    sin: { a:1, w:1, phi:0 },
+    cos: { a:1, w:1, phi:0 },
+    tan: { a:1, w:1, phi:0 }
+  },
+  highlight: false,
+  showSum: false,
+  animPlaying: false,
+  animSpeed: 1.5,
+  animTarget: 'all',
+  animOffset: 0,
+  rafId: null,
+  lastT: null
+};
+
+// ===== Phase chips =====
+const PHASES = [
+  {v:-2,l:'-2π'},{v:-1.5,l:'-3π/2'},{v:-1,l:'-π'},
+  {v:-0.5,l:'-π/2'},{v:-0.25,l:'-π/4'},{v:0,l:'0'},
+  {v:0.25,l:'π/4'},{v:0.5,l:'π/2'},{v:1,l:'π'},
+  {v:1.5,l:'3π/2'},{v:2,l:'2π'}
+];
+['sin','cos','tan'].forEach(f => {
+  const wrap = document.getElementById(`${f}-chips`);
+  PHASES.forEach(ph => {
+    const b = document.createElement('button');
+    b.className = `pchip ${ph.v===0?'active '+f:''}`;
+    b.textContent = ph.l;
+    b.dataset.v = ph.v;
+    b.addEventListener('click', () => {
+      S.p[f].phi = ph.v;
+      wrap.querySelectorAll('.pchip').forEach(c=>c.className=`pchip`);
+      b.className = `pchip active ${f}`;
+      document.getElementById(`${f}-p-val`).textContent = ph.l;
+      render(); updateFormulas();
+    });
+    wrap.appendChild(b);
+  });
+});
+
+// ===== Sliders =====
+['sin','cos','tan'].forEach(f => {
+  document.getElementById(`${f}-a`).addEventListener('input', e => {
+    S.p[f].a = parseFloat(e.target.value);
+    document.getElementById(`${f}-a-val`).textContent = S.p[f].a.toFixed(1);
+    render(); updateFormulas();
+  });
+  document.getElementById(`${f}-w`).addEventListener('input', e => {
+    S.p[f].w = parseFloat(e.target.value);
+    document.getElementById(`${f}-w-val`).textContent = S.p[f].w.toFixed(1);
+    render(); updateFormulas();
+  });
+});
+
+// ===== Visibility toggles =====
+document.querySelectorAll('.vis-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const f = btn.dataset.f;
+    S.show[f] = !S.show[f];
+    btn.classList.toggle('on', S.show[f]);
+    render(); updateFormulas();
+  });
+});
+
+// ===== Angle mode =====
+document.getElementById('angle-mode').querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    S.mode = btn.dataset.mode;
+    document.querySelectorAll('#angle-mode button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    render(); updateFormulas();
+  });
+});
+
+// ===== Theme =====
+document.getElementById('theme-btn').addEventListener('click', () => {
+  S.theme = S.theme==='light'?'dark':'light';
+  document.documentElement.setAttribute('data-theme', S.theme);
+  document.getElementById('theme-btn').textContent = S.theme==='light'?'🌙':'☀️';
+  render();
+});
+
+// ===== Feature buttons =====
+document.getElementById('btn-highlight').addEventListener('click', function(){
+  S.highlight = !S.highlight;
+  this.classList.toggle('on', S.highlight);
+  render();
+});
+document.getElementById('btn-sum').addEventListener('click', function(){
+  S.showSum = !S.showSum;
+  this.classList.toggle('sum-on', S.showSum);
+  document.getElementById('ftag-sum').style.display = S.showSum ? '' : 'none';
+  render(); updateFormulas();
+});
+
+// ===== Animation =====
+// ※ animLoop は canvas/ctx 宣言の後に定義する必要があるため、
+//    ここでは play-btn のクリックハンドラのみ登録し、
+//    実際のループ関数は canvas 宣言後に定義する。
+document.getElementById('play-btn').addEventListener('click', function(){
+  S.animPlaying = !S.animPlaying;
+  this.textContent = S.animPlaying ? '⏹ 停止' : '▶ 再生';
+  this.classList.toggle('playing', S.animPlaying);
+  if(S.animPlaying){
+    S.lastT = null;
+    S.rafId = requestAnimationFrame(animLoop);
+  } else {
+    cancelAnimationFrame(S.rafId);
+  }
+});
+document.getElementById('anim-speed').addEventListener('input', e => {
+  S.animSpeed = parseFloat(e.target.value);
+  document.getElementById('speed-val').textContent = `×${S.animSpeed}`;
+});
+document.getElementById('anim-target').querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    S.animTarget = btn.dataset.t;
+    document.querySelectorAll('#anim-target button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// ===== Reset =====
+document.getElementById('reset-btn').addEventListener('click', () => {
+  ['sin','cos','tan'].forEach(f => {
+    S.p[f] = {a:1,w:1,phi:0};
+    document.getElementById(`${f}-a`).value = 1;
+    document.getElementById(`${f}-w`).value = 1;
+    document.getElementById(`${f}-a-val`).textContent = '1.0';
+    document.getElementById(`${f}-w-val`).textContent = '1.0';
+    document.getElementById(`${f}-p-val`).textContent = '0';
+    document.querySelectorAll(`#${f}-chips .pchip`).forEach(c => {
+      c.className = `pchip${parseFloat(c.dataset.v)===0?' active '+f:''}`;
+    });
+  });
+  S.animOffset = 0;
+  render(); updateFormulas();
+});
+
+// ===== Canvas =====
+const canvas = document.getElementById('graph');
+const ctx = canvas.getContext('2d');
+
+function cssv(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+
+// ===== Animation loop (canvas/ctx 確保後に定義) =====
+function animLoop(ts) {
+  if(!S.animPlaying) return;
+  if(S.lastT === null) { S.lastT = ts; }
+  const dt = (ts - S.lastT) / 1000;
+  S.lastT = ts;
+  S.animOffset += dt * S.animSpeed * 0.5;
+  render();
+  S.rafId = requestAnimationFrame(animLoop);
+}
+
+function resize(){
+  const w = canvas.parentElement.clientWidth;
+  const h = Math.max(240, Math.min(400, window.innerHeight*0.42));
+  canvas.width = w; canvas.height = h;
+  render();
+}
+window.addEventListener('resize', resize);
+
+function toRad(x){ return S.mode==='rad' ? x : x*Math.PI/180; }
+
+function phiLabel(f){
+  const ph = PHASES.find(p=>p.v===S.p[f].phi);
+  return ph ? ph.l : S.p[f].phi+'π';
+}
+
+function updateFormulas(){
+  ['sin','cos','tan'].forEach(f => {
+    const {a,w,phi} = S.p[f];
+    const el = document.getElementById(`ftag-${f}`);
+    const A = a!==1?a.toFixed(1):'';
+    const W = w!==1?w.toFixed(1):'';
+    const P = phi!==0?` + ${phiLabel(f)}`:'';
+    const u = S.mode==='deg'?'°':'';
+    el.textContent = `y = ${A}${f}(${W}x${u}${P})`;
+    el.classList.toggle('off', !S.show[f]);
+  });
+  if(S.showSum){
+    document.getElementById('ftag-sum').textContent = 'sin+cos 合成波';
+    document.getElementById('ftag-sum').classList.remove('off');
+  }
+}
+
+// ===== Draw =====
+function render(){
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const bg = cssv('--surface');
+  const gridC = cssv('--grid');
+  const axisC = cssv('--axis');
+  const textC = cssv('--text-muted');
+  const sinC = cssv('--sin');
+  const cosC = cssv('--cos');
+  const tanC = cssv('--tan');
+  const sumC = cssv('--sum');
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,W,H);
+
+  const xRange = S.mode==='rad' ? 4*Math.PI : 720;
+  const yRange = 3.8;
+  const cx=W/2, cy=H/2;
+  const sx=W/xRange, sy=H/yRange;
+
+  function px(x,y){ return [cx+x*sx, cy-y*sy]; }
+
+  // Grid
+  ctx.strokeStyle = gridC; ctx.lineWidth=1;
+  const xStep = S.mode==='rad' ? Math.PI/2 : 90;
+  for(let x=Math.ceil(-xRange/2/xStep)*xStep; x<=xRange/2; x+=xStep){
+    const [ppx]=px(x,0);
+    ctx.beginPath(); ctx.moveTo(ppx,0); ctx.lineTo(ppx,H); ctx.stroke();
+  }
+  for(let y=-3;y<=3;y++){
+    const [,ppy]=px(0,y);
+    ctx.beginPath(); ctx.moveTo(0,ppy); ctx.lineTo(W,ppy); ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle=axisC; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+
+  // Axis labels
+  ctx.fillStyle=textC; ctx.font='10px JetBrains Mono,monospace'; ctx.textAlign='center';
+  const xl = S.mode==='rad'
+    ? [[-2*Math.PI,'-2π'],[-Math.PI*1.5,'-3π/2'],[-Math.PI,'-π'],[-Math.PI/2,'-π/2'],
+       [Math.PI/2,'π/2'],[Math.PI,'π'],[Math.PI*1.5,'3π/2'],[2*Math.PI,'2π']]
+    : [[-360,'-360°'],[-270,'-270°'],[-180,'-180°'],[-90,'-90°'],
+       [90,'90°'],[180,'180°'],[270,'270°'],[360,'360°']];
+  xl.forEach(([v,l])=>{
+    const [ppx]=px(v,0); ctx.fillText(l,ppx,cy+13);
+  });
+  ctx.textAlign='right';
+  [-3,-2,-1,1,2,3].forEach(v=>{
+    const [,ppy]=px(0,v); ctx.fillText(String(v),cx-5,ppy+4);
+  });
+
+  const STEPS = 1000;
+
+  // ---- Draw a function ----
+  function drawFn(fn, color, lw, dash){
+    const {a,w,phi} = S.p[fn] || {a:1,w:1,phi:0};
+    if(dash) ctx.setLineDash(dash); else ctx.setLineDash([]);
+    ctx.strokeStyle=color; ctx.lineWidth=lw;
+    ctx.beginPath();
+    let first=true, prevY=null;
+    for(let i=0;i<=STEPS;i++){
+      const xi = -xRange/2 + xRange*i/STEPS;
+      const animPhi = (S.animPlaying && (S.animTarget==='all'||S.animTarget===fn)) ? S.animOffset : 0;
+      const angle = w*toRad(xi) + phi*Math.PI + animPhi;
+      let y;
+      if(fn==='sin') y=a*Math.sin(angle);
+      else if(fn==='cos') y=a*Math.cos(angle);
+      else {
+        y=a*Math.tan(angle);
+        if(Math.abs(y)>4.5||(prevY!==null&&Math.abs(y-prevY)>3)){first=true;prevY=y;continue;}
+      }
+      prevY=y;
+      const [ppx,ppy]=px(xi,y);
+      if(first){ctx.moveTo(ppx,ppy);first=false;} else ctx.lineTo(ppx,ppy);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // ---- Draw sum wave ----
+  function drawSum(){
+    const sn=S.p.sin, cs=S.p.cos;
+    ctx.setLineDash([6,4]); ctx.strokeStyle=sumC; ctx.lineWidth=2;
+    ctx.beginPath(); let first=true;
+    for(let i=0;i<=STEPS;i++){
+      const xi=-xRange/2+xRange*i/STEPS;
+      const sinPhi = (S.animPlaying&&(S.animTarget==='all'||S.animTarget==='sin'))?S.animOffset:0;
+      const cosPhi = (S.animPlaying&&(S.animTarget==='all'||S.animTarget==='cos'))?S.animOffset:0;
+      const y = sn.a*Math.sin(sn.w*toRad(xi)+sn.phi*Math.PI+sinPhi)
+               +cs.a*Math.cos(cs.w*toRad(xi)+cs.phi*Math.PI+cosPhi);
+      const [ppx,ppy]=px(xi,y);
+      if(first){ctx.moveTo(ppx,ppy);first=false;} else ctx.lineTo(ppx,ppy);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // ---- Highlight special points ----
+  function drawHighlight(fn, color){
+    const {a,w,phi} = S.p[fn];
+    const animPhi = (S.animPlaying&&(S.animTarget==='all'||S.animTarget===fn))?S.animOffset:0;
+
+    function markDot(x,y,label,shape){
+      const [ppx,ppy]=px(x,y);
+      ctx.beginPath();
+      if(shape==='diamond'){
+        ctx.moveTo(ppx,ppy-6); ctx.lineTo(ppx+5,ppy); ctx.lineTo(ppx,ppy+6); ctx.lineTo(ppx-5,ppy); ctx.closePath();
+        ctx.fillStyle=color; ctx.fill();
+      } else {
+        ctx.arc(ppx,ppy,5,0,Math.PI*2);
+        ctx.fillStyle='#fff'; ctx.fill();
+        ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
+      }
+      ctx.fillStyle=color;
+      ctx.font='bold 9px JetBrains Mono,monospace';
+      ctx.textAlign='center';
+      ctx.fillText(label,ppx,ppy-9);
+    }
+
+    const half = xRange/2;
+    const step = S.mode==='rad'?Math.PI/w:180/w;
+
+    if(fn==='sin'||fn==='cos'){
+      // max/min points
+      for(let n=-8;n<=8;n++){
+        let xi;
+        if(fn==='sin') xi = (Math.PI/2-phi*Math.PI-animPhi)/w + n*2*Math.PI/w;
+        else           xi = (-phi*Math.PI-animPhi)/w + n*2*Math.PI/w;
+        if(S.mode==='deg') xi *= 180/Math.PI;
+        if(xi>=-half&&xi<=half) markDot(xi,a,'max','circle');
+        const xi2 = xi + Math.PI/w * (S.mode==='deg'?180/Math.PI:1);
+        if(xi2>=-half&&xi2<=half) markDot(xi2,-a,'min','circle');
+      }
+      // zero crossings
+      for(let n=-16;n<=16;n++){
+        let xi;
+        if(fn==='sin') xi = (-phi*Math.PI-animPhi)/w + n*Math.PI/w;
+        else           xi = (Math.PI/2-phi*Math.PI-animPhi)/w + n*Math.PI/w;
+        if(S.mode==='deg') xi *= 180/Math.PI;
+        if(xi>=-half&&xi<=half) markDot(xi,0,'0','diamond');
+      }
+    }
+    if(fn==='tan'){
+      // asymptotes indicator
+      for(let n=-8;n<=8;n++){
+        const xi_r = (Math.PI/2-phi*Math.PI-animPhi)/w + n*Math.PI/w;
+        const xi = S.mode==='deg' ? xi_r*180/Math.PI : xi_r;
+        if(xi>=-half&&xi<=half){
+          const [ppx]=px(xi,0);
+          ctx.strokeStyle=color; ctx.lineWidth=1; ctx.setLineDash([2,3]);
+          ctx.beginPath(); ctx.moveTo(ppx,0); ctx.lineTo(ppx,H); ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      }
+    }
+  }
+
+  // ---- Render order ----
+  if(S.showSum) drawSum();
+  if(S.show.tan) drawFn('tan',tanC,2.5);
+  if(S.show.cos) drawFn('cos',cosC,2.5);
+  if(S.show.sin) drawFn('sin',sinC,2.5);
+
+  if(S.highlight){
+    if(S.show.sin) drawHighlight('sin',sinC);
+    if(S.show.cos) drawHighlight('cos',cosC);
+    if(S.show.tan) drawHighlight('tan',tanC);
+  }
+}
+
+// ===== Init =====
+resize();
+updateFormulas();
+</script>
+</body>
+</html>
