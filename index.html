@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>三角関数グラフシミュレータ</title>
+<title data-i18n="pageTitle">三角関数グラフシミュレータ</title>
 <meta property="og:title" content="三角関数グラフシミュレータ">
 <meta property="og:description" content="sin・cos・tan を関数ごとに独立したパラメータで操作。合成波・アニメーション対応の高校数学ツール。">
 <meta property="og:type" content="website">
@@ -223,7 +223,7 @@ input[type=range]::-moz-range-thumb{
 
 <header>
   <div class="hd-left">
-    <span class="hd-title">三角関数グラフシミュレータ</span>
+    <span class="hd-title" data-i18n="pageTitle">三角関数グラフシミュレータ</span>
     <span class="hd-sub">meetupsensei.com</span>
   </div>
   <div class="hd-right">
@@ -231,7 +231,8 @@ input[type=range]::-moz-range-thumb{
       <button class="active" data-mode="rad">rad</button>
       <button data-mode="deg">deg</button>
     </div>
-    <button class="icon-btn" id="theme-btn" title="ライト/ダーク切替">🌙</button>
+    <button class="icon-btn" id="theme-btn" title="ライト/ダーク切替" data-i18n-title="themeBtnTitle">🌙</button>
+    <button class="icon-btn" id="lang-btn" title="言語切替" data-i18n-title="langBtnTitle">EN</button>
   </div>
 </header>
 
@@ -244,29 +245,29 @@ input[type=range]::-moz-range-thumb{
         <span class="ftag sin" id="ftag-sin">y=sin(x)</span>
         <span class="ftag cos" id="ftag-cos">y=cos(x)</span>
         <span class="ftag tan" id="ftag-tan">y=tan(x)</span>
-        <span class="ftag sum off" id="ftag-sum" style="display:none">合成波</span>
+        <span class="ftag sum off" id="ftag-sum" style="display:none" data-i18n="sumWave">合成波</span>
       </div>
       <canvas id="graph"></canvas>
     </div>
 
     <!-- Feature bar -->
     <div class="card">
-      <div class="card-title">表示オプション</div>
+      <div class="card-title" data-i18n="displayOptions">表示オプション</div>
       <div class="feat-row">
-        <button class="feat-btn" id="btn-highlight" title="最大値・ゼロ点・不連続点をマーカー表示">📍 特徴点ハイライト</button>
-        <button class="feat-btn sum-off" id="btn-sum" title="sinとcosの合成波 sin+cos を表示">➕ 合成波 (sin+cos)</button>
+        <button class="feat-btn" id="btn-highlight" title="最大値・ゼロ点・不連続点をマーカー表示" data-i18n-title="highlightTitle" data-i18n="highlightBtn">📍 特徴点ハイライト</button>
+        <button class="feat-btn sum-off" id="btn-sum" title="sinとcosの合成波 sin+cos を表示" data-i18n-title="sumBtnTitle" data-i18n="sumBtn">➕ 合成波 (sin+cos)</button>
       </div>
       <hr class="sep">
-      <div class="card-title" style="margin-bottom:6px">アニメーション（位相を自動変化）</div>
+      <div class="card-title" style="margin-bottom:6px" data-i18n="animTitle">アニメーション（位相を自動変化）</div>
       <div class="anim-bar">
-        <button class="play-btn" id="play-btn">▶ 再生</button>
-        <span class="speed-label">速度</span>
+        <button class="play-btn" id="play-btn" data-i18n="playBtn">▶ 再生</button>
+        <span class="speed-label" data-i18n="speedLabel">速度</span>
         <input type="range" id="anim-speed" min="0.5" max="4" step="0.5" value="1.5"
                style="width:80px;margin:0" class="sin-range">
         <span class="pval" id="speed-val" style="font-size:.72rem;color:var(--text-muted)">×1.5</span>
-        <span class="speed-label" style="margin-left:4px">対象</span>
+        <span class="speed-label" style="margin-left:4px" data-i18n="targetLabel">対象</span>
         <div class="pill" id="anim-target" style="margin-left:4px">
-          <button class="active" data-t="all">全て</button>
+          <button class="active" data-t="all" data-i18n="targetAll">全て</button>
           <button data-t="sin">sin</button>
           <button data-t="cos">cos</button>
         </div>
@@ -275,12 +276,12 @@ input[type=range]::-moz-range-thumb{
 
     <!-- Formula reference -->
     <div class="card">
-      <div class="card-title">公式メモ</div>
+      <div class="card-title" data-i18n="formulaNotes">公式メモ</div>
       <div class="info-box">
-        <strong>y = A · f(ωx + φ)</strong> &nbsp; A:振幅 ω:角周波数 φ:位相<br>
+<span data-i18n-html="infoBox">        <strong>y = A · f(ωx + φ)</strong> &nbsp; A:振幅 ω:角周波数 φ:位相<br>
         周期 T = 2π/ω（radモード） &nbsp;|&nbsp; 値域 sin,cos : [−A, A]<br>
         <strong>sin²x + cos²x = 1</strong> &nbsp;|&nbsp; <strong>tan x = sin x / cos x</strong><br>
-        tan は x = π/2 + nπ（rad）で不連続
+        tan は x = π/2 + nπ（rad）で不連続</span>
       </div>
     </div>
   </div>
@@ -293,19 +294,19 @@ input[type=range]::-moz-range-thumb{
       <div class="func-header">
         <span class="cdot sin"></span>
         <span class="func-label sin">sin</span>
-        <button class="vis-toggle on sin" id="tog-sin" data-f="sin" title="表示切替"></button>
+        <button class="vis-toggle on sin" id="tog-sin" data-f="sin" title="表示切替" data-i18n-title="visToggleTitle"></button>
       </div>
       <div class="func-block">
         <div class="param-row">
-          <div class="param-label"><span>振幅 A</span><span class="pval sin" id="sin-a-val" style="color:var(--sin)">1.0</span></div>
+          <div class="param-label"><span data-i18n="paramAmplitude">振幅 A</span><span class="pval sin" id="sin-a-val" style="color:var(--sin)">1.0</span></div>
           <input type="range" class="sin-range" id="sin-a" min="0.1" max="3" step="0.1" value="1">
         </div>
         <div class="param-row">
-          <div class="param-label"><span>角周波数 ω</span><span class="pval" id="sin-w-val" style="color:var(--sin)">1.0</span></div>
+          <div class="param-label"><span data-i18n="paramFrequency">角周波数 ω</span><span class="pval" id="sin-w-val" style="color:var(--sin)">1.0</span></div>
           <input type="range" class="sin-range" id="sin-w" min="0.1" max="4" step="0.1" value="1">
         </div>
         <div class="param-row" style="margin-bottom:0">
-          <div class="param-label"><span>位相 φ</span><span class="pval" id="sin-p-val" style="color:var(--sin)">0</span></div>
+          <div class="param-label"><span data-i18n="paramPhase">位相 φ</span><span class="pval" id="sin-p-val" style="color:var(--sin)">0</span></div>
           <div class="phase-chips" id="sin-chips"></div>
         </div>
       </div>
@@ -316,19 +317,19 @@ input[type=range]::-moz-range-thumb{
       <div class="func-header">
         <span class="cdot cos"></span>
         <span class="func-label cos">cos</span>
-        <button class="vis-toggle on cos" id="tog-cos" data-f="cos" title="表示切替"></button>
+        <button class="vis-toggle on cos" id="tog-cos" data-f="cos" title="表示切替" data-i18n-title="visToggleTitle"></button>
       </div>
       <div class="func-block">
         <div class="param-row">
-          <div class="param-label"><span>振幅 A</span><span class="pval" id="cos-a-val" style="color:var(--cos)">1.0</span></div>
+          <div class="param-label"><span data-i18n="paramAmplitude">振幅 A</span><span class="pval" id="cos-a-val" style="color:var(--cos)">1.0</span></div>
           <input type="range" class="cos-range" id="cos-a" min="0.1" max="3" step="0.1" value="1">
         </div>
         <div class="param-row">
-          <div class="param-label"><span>角周波数 ω</span><span class="pval" id="cos-w-val" style="color:var(--cos)">1.0</span></div>
+          <div class="param-label"><span data-i18n="paramFrequency">角周波数 ω</span><span class="pval" id="cos-w-val" style="color:var(--cos)">1.0</span></div>
           <input type="range" class="cos-range" id="cos-w" min="0.1" max="4" step="0.1" value="1">
         </div>
         <div class="param-row" style="margin-bottom:0">
-          <div class="param-label"><span>位相 φ</span><span class="pval" id="cos-p-val" style="color:var(--cos)">0</span></div>
+          <div class="param-label"><span data-i18n="paramPhase">位相 φ</span><span class="pval" id="cos-p-val" style="color:var(--cos)">0</span></div>
           <div class="phase-chips" id="cos-chips"></div>
         </div>
       </div>
@@ -339,33 +340,111 @@ input[type=range]::-moz-range-thumb{
       <div class="func-header">
         <span class="cdot tan"></span>
         <span class="func-label tan">tan</span>
-        <button class="vis-toggle on tan" id="tog-tan" data-f="tan" title="表示切替"></button>
+        <button class="vis-toggle on tan" id="tog-tan" data-f="tan" title="表示切替" data-i18n-title="visToggleTitle"></button>
       </div>
       <div class="func-block">
         <div class="param-row">
-          <div class="param-label"><span>振幅 A</span><span class="pval" id="tan-a-val" style="color:var(--tan)">1.0</span></div>
+          <div class="param-label"><span data-i18n="paramAmplitude">振幅 A</span><span class="pval" id="tan-a-val" style="color:var(--tan)">1.0</span></div>
           <input type="range" class="tan-range" id="tan-a" min="0.1" max="3" step="0.1" value="1">
         </div>
         <div class="param-row">
-          <div class="param-label"><span>角周波数 ω</span><span class="pval" id="tan-w-val" style="color:var(--tan)">1.0</span></div>
+          <div class="param-label"><span data-i18n="paramFrequency">角周波数 ω</span><span class="pval" id="tan-w-val" style="color:var(--tan)">1.0</span></div>
           <input type="range" class="tan-range" id="tan-w" min="0.1" max="4" step="0.1" value="1">
         </div>
         <div class="param-row" style="margin-bottom:0">
-          <div class="param-label"><span>位相 φ</span><span class="pval" id="tan-p-val" style="color:var(--tan)">0</span></div>
+          <div class="param-label"><span data-i18n="paramPhase">位相 φ</span><span class="pval" id="tan-p-val" style="color:var(--tan)">0</span></div>
           <div class="phase-chips" id="tan-chips"></div>
         </div>
       </div>
     </div>
 
-    <button class="reset-btn" id="reset-btn">↺ 全パラメータをリセット</button>
+    <button class="reset-btn" id="reset-btn" data-i18n="resetBtn">↺ 全パラメータをリセット</button>
   </div>
 </div>
 
 <script>
+// ===== i18n =====
+const I18N = {
+  ja: {
+    pageTitle: '三角関数グラフシミュレータ',
+    themeBtnTitle: 'ライト/ダーク切替',
+    langBtnTitle: '言語切替',
+    sumWave: '合成波',
+    sumWaveFull: 'sin+cos 合成波',
+    displayOptions: '表示オプション',
+    highlightBtn: '📍 特徴点ハイライト',
+    highlightTitle: '最大値・ゼロ点・不連続点をマーカー表示',
+    sumBtn: '➕ 合成波 (sin+cos)',
+    sumBtnTitle: 'sinとcosの合成波 sin+cos を表示',
+    animTitle: 'アニメーション（位相を自動変化）',
+    playBtn: '▶ 再生',
+    stopBtn: '⏹ 停止',
+    speedLabel: '速度',
+    targetLabel: '対象',
+    targetAll: '全て',
+    formulaNotes: '公式メモ',
+    infoBox: '<strong>y = A · f(ωx + φ)</strong> &nbsp; A:振幅 ω:角周波数 φ:位相<br>\n        周期 T = 2π/ω（radモード） &nbsp;|&nbsp; 値域 sin,cos : [−A, A]<br>\n        <strong>sin²x + cos²x = 1</strong> &nbsp;|&nbsp; <strong>tan x = sin x / cos x</strong><br>\n        tan は x = π/2 + nπ（rad）で不連続',
+    visToggleTitle: '表示切替',
+    paramAmplitude: '振幅 A',
+    paramFrequency: '角周波数 ω',
+    paramPhase: '位相 φ',
+    resetBtn: '↺ 全パラメータをリセット'
+  },
+  en: {
+    pageTitle: 'Trig Function Graph Simulator',
+    themeBtnTitle: 'Toggle light/dark mode',
+    langBtnTitle: 'Switch language',
+    sumWave: 'Sum wave',
+    sumWaveFull: 'sin+cos sum wave',
+    displayOptions: 'Display Options',
+    highlightBtn: '📍 Highlight key points',
+    highlightTitle: 'Show markers for maxima, zero crossings, and discontinuities',
+    sumBtn: '➕ Sum wave (sin+cos)',
+    sumBtnTitle: 'Show the sum wave sin(x) + cos(x)',
+    animTitle: 'Animation (auto-vary phase)',
+    playBtn: '▶ Play',
+    stopBtn: '⏹ Stop',
+    speedLabel: 'Speed',
+    targetLabel: 'Target',
+    targetAll: 'All',
+    formulaNotes: 'Formula Notes',
+    infoBox: '<strong>y = A · f(ωx + φ)</strong> &nbsp; A: amplitude, ω: angular frequency, φ: phase<br>\n        Period T = 2π/ω (rad mode) &nbsp;|&nbsp; Range of sin, cos: [−A, A]<br>\n        <strong>sin²x + cos²x = 1</strong> &nbsp;|&nbsp; <strong>tan x = sin x / cos x</strong><br>\n        tan is discontinuous at x = π/2 + nπ (rad)',
+    visToggleTitle: 'Toggle visibility',
+    paramAmplitude: 'Amplitude A',
+    paramFrequency: 'Angular frequency ω',
+    paramPhase: 'Phase φ',
+    resetBtn: '↺ Reset all parameters'
+  }
+};
+
+function applyLang(lang){
+  S.lang = lang;
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = I18N[lang][el.dataset.i18n];
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.title = I18N[lang][el.dataset.i18nTitle];
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    el.innerHTML = I18N[lang][el.dataset.i18nHtml];
+  });
+  document.getElementById('lang-btn').textContent = lang === 'ja' ? 'EN' : 'JA';
+  document.getElementById('play-btn').textContent = S.animPlaying ? I18N[lang].stopBtn : I18N[lang].playBtn;
+  if(S.showSum){
+    document.getElementById('ftag-sum').textContent = I18N[lang].sumWaveFull;
+  }
+}
+
+document.getElementById('lang-btn').addEventListener('click', () => {
+  applyLang(S.lang === 'ja' ? 'en' : 'ja');
+});
+
 // ===== State =====
 const S = {
   mode: 'rad',
   theme: 'light',
+  lang: 'ja',
   show: { sin:true, cos:true, tan:true },
   p: {
     sin: { a:1, w:1, phi:0 },
@@ -468,7 +547,7 @@ document.getElementById('btn-sum').addEventListener('click', function(){
 //    実際のループ関数は canvas 宣言後に定義する。
 document.getElementById('play-btn').addEventListener('click', function(){
   S.animPlaying = !S.animPlaying;
-  this.textContent = S.animPlaying ? '⏹ 停止' : '▶ 再生';
+  this.textContent = S.animPlaying ? I18N[S.lang].stopBtn : I18N[S.lang].playBtn;
   this.classList.toggle('playing', S.animPlaying);
   if(S.animPlaying){
     S.lastT = null;
@@ -550,7 +629,7 @@ function updateFormulas(){
     el.classList.toggle('off', !S.show[f]);
   });
   if(S.showSum){
-    document.getElementById('ftag-sum').textContent = 'sin+cos 合成波';
+    document.getElementById('ftag-sum').textContent = I18N[S.lang].sumWaveFull;
     document.getElementById('ftag-sum').classList.remove('off');
   }
 }
