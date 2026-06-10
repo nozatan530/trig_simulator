@@ -28,5 +28,5 @@ sin、cos、tan のグラフをそれぞれ振幅A・角周波数ω・位相φ�
 
 ## 制作
 
-[のざたん（野崎浩平）](https://meetupsensei.com) — 会いに行けるセンセイ
-Voicy「学びのセカンドオピニオン」/ note / Canvassador 2026
+[のざたん](https://meetupsensei.com) — 会いに行けるセンセイ  
+[Voicy「学びのセカンドオピニオン」](https://voicy.jp/channel/3708)

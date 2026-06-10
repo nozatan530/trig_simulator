@@ -217,6 +217,9 @@ input[type=range]::-moz-range-thumb{
   .layout{padding:8px;gap:8px}
   .card{padding:10px}
 }
+
+footer{margin-top:16px;padding:12px;text-align:center;font-size:.8rem;color:var(--text-sub)}
+footer a{color:var(--text-sub)}
 </style>
 </head>
 <body>
@@ -362,6 +365,8 @@ input[type=range]::-moz-range-thumb{
   </div>
 </div>
 
+<footer data-i18n-html="footer">制作：のざたん／ <a href="https://meetupsensei.com" target="_blank" rel="noopener">meetupsensei.com</a></footer>
+
 <script>
 // ===== i18n =====
 const I18N = {
@@ -388,7 +393,8 @@ const I18N = {
     paramAmplitude: '振幅 A',
     paramFrequency: '角周波数 ω',
     paramPhase: '位相 φ',
-    resetBtn: '↺ 全パラメータをリセット'
+    resetBtn: '↺ 全パラメータをリセット',
+    footer: '制作：のざたん／ <a href="https://meetupsensei.com" target="_blank" rel="noopener">meetupsensei.com</a>'
   },
   en: {
     pageTitle: 'Trig Function Graph Simulator',
@@ -413,7 +419,8 @@ const I18N = {
     paramAmplitude: 'Amplitude A',
     paramFrequency: 'Angular frequency ω',
     paramPhase: 'Phase φ',
-    resetBtn: '↺ Reset all parameters'
+    resetBtn: '↺ Reset all parameters',
+    footer: 'Created by Nozatan / <a href="https://meetupsensei.com" target="_blank" rel="noopener">meetupsensei.com</a>'
   }
 };
 
